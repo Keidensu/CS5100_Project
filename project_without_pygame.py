@@ -50,6 +50,7 @@ class TaxiEnv:
 
     def q_learning(self, num_episodes):
         for episode in range(num_episodes):
+            self.state = 0 # Reset state to initial position at the start of each episode
             state = self.state
             total_reward = 0
 
