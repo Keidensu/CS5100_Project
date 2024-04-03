@@ -36,8 +36,8 @@ class TaxiEnv:
                 reward = -10
             return self.state, reward
         elif action == 5:  # drop-off passenger
-            if self.state == self.destination_loc[0] * self.grid_size + self.destination_loc[1]:
-                reward = 20
+            if self.state == self.destination_loc[0] * self.grid_size + self.destination_loc[1] and self.passenger_loc == (-1,-1):
+                reward = 50
             else:
                 reward = -20
             return self.state, reward
@@ -53,6 +53,7 @@ class TaxiEnv:
             self.state = 0 # Reset state to initial position at the start of each episode
             state = self.state
             total_reward = 0
+            self.passenger_loc = (1,2)
 
             while True:
                 possible_actions = self.get_possible_actions()
@@ -74,7 +75,7 @@ class TaxiEnv:
                 total_reward += reward
                 state = next_state
 
-                if reward == 20 or reward == -10:  # episode ends
+                if reward == 50 or reward == -20:  # episode ends
                     break
 
             self.exploration_rate = max(self.min_exploration_rate, self.exploration_rate * self.exploration_decay_rate)
@@ -100,7 +101,7 @@ if __name__ == "__main__":
         total_reward += reward
         state = next_state
 
-        if reward == 20 or reward == -10:  # episode ends
+        if reward == 50 or reward == -20:  # episode ends
             break
 
     print(f"Test Total Reward: {total_reward}")

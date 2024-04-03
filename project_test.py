@@ -11,10 +11,13 @@ class TaxiEnv:
         self.destination_loc = (3, 4)  # Destination initial location
         self.q_table = np.zeros((self.num_states, self.num_actions))
         self.learning_rate = 0.1
-        self.discount_factor = 0.9
+        self.discount_factor = 0.7
         self.exploration_rate = 1.0
         self.min_exploration_rate = 0.01
         self.exploration_decay_rate = 0.99
+        self.learning_rate_decay_rate = 0.99
+        self.min_learning_rate = 0.01
+        self.visit_counts = np.zeros((self.num_states, self.num_actions))
 
     def reset(self):
         """
@@ -68,14 +71,14 @@ class TaxiEnv:
             self.passenger_loc = (-1, -1)  # Passenger is now on-board
             return 10, False  # Reward for successful pick-up
         else:
-            return -10, False  # Penalty for incorrect pick-up
+            return -20, False  # Penalty for incorrect pick-up
 
     def dropoff(self):
         """
         Handle the drop-off action and return the reward and done flag.
         """
-        if self.state == self.destination_loc[0] * self.grid_size + self.destination_loc[1]:
-            return 20, True  # Reward for successful drop-off and episode ends
+        if self.state == self.destination_loc[0] * self.grid_size + self.destination_loc[1] and self.passenger_loc == (-1, -1):
+            return 100, True  # Reward for successful drop-off and episode ends
         else:
             return -20, False  # Penalty for incorrect drop-off
 
@@ -85,6 +88,8 @@ class TaxiEnv:
             total_reward = 0
             done = False
             steps = 0  # Track the number of steps taken in the episode
+            self.passenger_loc = (1, 2)
+            episode_learning_rate = self.learning_rate  # Store episode-specific learning rate
 
             while not done:
                 # Choose an action based on the exploration-exploitation strategy
@@ -94,15 +99,20 @@ class TaxiEnv:
                 next_state, reward, done = self.step(action)
                 steps += 1  # Increment steps for each action taken
 
-                # Update Q-value using the Q-learning formula
-                self.q_table[state, action] = (1 - self.learning_rate) * self.q_table[state, action] + \
-                                              self.learning_rate * (reward + self.discount_factor * np.max(self.q_table[next_state]))
+                # Update visit count for the selected action
+                self.visit_counts[state, action] += 1
+
+                # Update Q-value using the Q-learning formula with episode-specific learning rate
+                self.q_table[state, action] = (1 - episode_learning_rate) * self.q_table[state, action] + \
+                                              episode_learning_rate * (reward + self.discount_factor * np.max(self.q_table[next_state]))
 
                 total_reward += reward
                 state = next_state
 
-            # Adjust the exploration rate
+            # Adjust the exploration rate using exponential decay
             self.exploration_rate = max(self.min_exploration_rate, self.exploration_rate * self.exploration_decay_rate)
+            # Adjust the learning rate based on the number of visits to each state-action pair
+            self.learning_rate = max(self.min_learning_rate, self.learning_rate / (1 + np.log1p(self.visit_counts[state, action])))
 
             # Logging for every 100 episodes
             if episode % 100 == 0:
@@ -133,17 +143,3 @@ if __name__ == "__main__":
     num_episodes = 1000
     env.q_learning(num_episodes)
     env.test_agent()  # Call the enhanced testing method
-
-    # After training, test the trained agent
-    state = env.reset()  # Start from the initial state for testing
-    total_reward = 0
-    done = False
-
-    print("\nTesting trained agent...")
-    while not done:
-        # Choose the best action from Q-table
-        action = np.argmax(env.q_table[state])
-        state, reward, done = env.step(action)
-        total_reward += reward
-
-    print(f"Test Total Reward: {total_reward}")

@@ -63,14 +63,16 @@ class TaxiEnv:
             if self.state == self.passenger_loc[0] * self.grid_size + self.passenger_loc[1]:
                 self.passenger_loc = (-1, -1)  # passenger picked up
                 reward = 10
+                self.passenger_picked_up = True
             else:
-                reward = -10
+                reward = -5
             return self.state, reward
         elif action == 5:  # drop-off passenger
-            if self.state == self.destination_loc[0] * self.grid_size + self.destination_loc[1]:
+            if self.state == self.destination_loc[0] * self.grid_size + self.destination_loc[1] and self.passenger_picked_up == True:
                 reward = 20
+                self.passenger_picked_up = False
             else:
-                reward = -20
+                reward = -10
             return self.state, reward
         else:
             raise ValueError("Invalid action")
@@ -83,14 +85,16 @@ class TaxiEnv:
         clock = pygame.time.Clock()
 
         for episode in range(num_episodes):
-            state = self.state
+            state = 0
             total_reward = 0
+            self.passenger_loc = (1,2)
+            self.passenger_picked_up = False
 
             for _ in range(100):  # Limiting steps per episode to avoid infinite loop
                 self.draw_grid()
                 pygame.display.update()
 
-                clock.tick(10)  # Limit FPS to 10
+                clock.tick(60)  # Limit FPS to 10
 
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
