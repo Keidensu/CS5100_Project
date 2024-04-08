@@ -29,7 +29,8 @@ class TaxiEnv:
         self.in_transit = False 
         self.passenger_loc = (1, 2)
         self.destination_loc = (3, 4)
-        self.obstacles = [3, 8, 13, 18]
+        # self.obstacles = np.random.rand(self.grid_size) * self.grid_size**2
+        self.obstacles = [3, 8, 13, 18, 1, 6, 11, 16]
         return self.state
 
     def get_possible_actions(self):
@@ -67,7 +68,7 @@ class TaxiEnv:
             raise ValueError("Invalid action")
         
         if self.state in self.obstacles:
-            reward -= 50
+            reward -= 20
 
         return self.state, reward, done
 

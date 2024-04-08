@@ -145,7 +145,9 @@ class TaxiEnv:
             total_reward = 0
             done = False
             steps = 0  # Track the number of steps taken in the episode
-            clock.tick(10)  # Limit FPS to 10
+            
+            clock.tick(50)  # Limit FPS to 10
+
             while not done:
                 self.draw_grid(delay=50) 
                 pygame.display.update()
