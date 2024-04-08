@@ -29,6 +29,7 @@ class TaxiEnv:
         self.in_transit = False 
         self.passenger_loc = (1, 2)
         self.destination_loc = (3, 4)
+        self.obstacles = [3, 8, 13, 18]
         return self.state
 
     def get_possible_actions(self):
@@ -64,6 +65,9 @@ class TaxiEnv:
 
         else:
             raise ValueError("Invalid action")
+        
+        if self.state in self.obstacles:
+            reward -= 50
 
         return self.state, reward, done
 
