@@ -5,12 +5,12 @@ import seaborn as sns
 class TaxiEnv:
     def __init__(self):
         # Customize the environment settings
-        self.grid_size = 5
+        self.grid_size = 3
         self.num_states = self.grid_size ** 2
         self.num_actions = 6  # 4 directions + pick-up + drop-off
         self.state = self.reset()  # Use reset method to initialize state
         self.passenger_loc = (1, 2)  # Passenger initial location
-        self.destination_loc = (3, 4)  # Destination initial location
+        self.destination_loc = (3, 18)  # Destination initial location
         self.q_table_pre_pickup = np.zeros((self.num_states, self.num_actions))  # Q-table for before pickup
         self.q_table_post_pickup = np.zeros((self.num_states, self.num_actions))  # Q-table for after pickup
         self.learning_rate = 0.1
@@ -28,9 +28,9 @@ class TaxiEnv:
         self.state = 0  # Resets only the taxi's location for now
         self.in_transit = False 
         self.passenger_loc = (1, 2)
-        self.destination_loc = (3, 4)
+        self.destination_loc = (2, 2)
         # self.obstacles = np.random.rand(self.grid_size) * self.grid_size**2
-        self.obstacles = [3, 8, 13, 18, 1, 6, 11, 16]
+        self.obstacles = [3, 4]
         return self.state
 
     def get_possible_actions(self):
