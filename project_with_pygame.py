@@ -34,7 +34,12 @@ class TaxiEnv:
             pygame.draw.line(self.screen, (0, 0, 0), (x, 0), (x, self.grid_size * self.cell_size))
         for y in range(0, self.grid_size * self.cell_size, self.cell_size):
             pygame.draw.line(self.screen, (0, 0, 0), (0, y), (self.grid_size * self.cell_size, y))
-
+        
+        obstacle_color = (127, 127, 127)
+        for obstacle in self.obstacles:
+            pygame.draw.rect(self.screen, obstacle_color, (
+            (obstacle % self.grid_size) * self.cell_size, (obstacle // self.grid_size) * self.cell_size,
+            self.cell_size, self.cell_size))
         # Draw taxi
         pygame.draw.rect(self.screen, (255, 0, 0), (self.state % self.grid_size * self.cell_size,
                                                      self.state // self.grid_size * self.cell_size,
@@ -61,6 +66,8 @@ class TaxiEnv:
         self.in_transit = False 
         self.passenger_loc = (1, 2)
         self.destination_loc = (3, 4)
+        self.obstacles = [3, 8,16,21]
+
         return self.state
 
     def get_possible_actions(self):
@@ -96,6 +103,9 @@ class TaxiEnv:
 
         else:
             raise ValueError("Invalid action")
+        
+        if self.state in self.obstacles:
+            reward -= 20
 
         return self.state, reward, done
 
